@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://root:dZyP77EKmdHAQpsBYPhO3R7u@finn.iran.liara.ir:30446/postgres"
+}
+
+model User {
+  id               Int     @id @default(autoincrement())
+  username         String  @unique
+  email            String  @unique
+  password         String
+  posts            Post[]  @relation("posts")
+  postUpdatedById  Post[]  @relation("post-updates")
+  topic            Topic[] @relation("topics")
+  topicUpdatedById Topic[] @relation("topic-updates")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String    @unique
+  desc        String
+  lang        String    @default("en")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime?
+  updatedBy   User?     @relation("post-updates", fields: [updatedById], references: [id])
+  updatedById Int?
+  device      String
+  author      User      @relation("posts", fields: [authorId], references: [id])
+  authorId    Int
+  topic       Topic     @relation(fields: [topicId], references: [id])
+  topicId     Int
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  icon        String
+}
+
+model Topic {
+  id          Int      @id @default(autoincrement())
+  title       String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime?
+  updatedBy   User?     @relation("topics", fields: [updatedById], references: [id])
+  updatedById Int?
+  posts       Post[]
+  author      User     @relation("topic-updates", fields: [authorId], references: [id])
+  authorId    Int
+}
